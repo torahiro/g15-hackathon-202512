@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+<button id="start">START</button>
+
+<script>
+let ws;
+let audioContext, processor, input;
+
+document.getElementById("start").onclick = async () => {
+  ws = new WebSocket("ws://localhost:8765");
+
+  audioContext = new AudioContext();
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  input = audioContext.createMediaStreamSource(stream);
+  processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+  input.connect(processor);
+  processor.connect(audioContext.destination);
+
+  processor.onaudioprocess = e => {
+    const data = e.inputBuffer.getChannelData(0);
+    ws.send(data.buffer);
+  };
+
+  ws.onmessage = e => {
+    const buffer = audioContext.createBuffer(1, 4096, audioContext.sampleRate);
+    buffer.getChannelData(0).set(new Float32Array(e.data));
+    const src = audioContext.createBufferSource();
+    src.buffer = buffer;
+    src.connect(audioContext.destination);
+    src.start();
+  };
+};
+</script>
+</body>
+</html>
