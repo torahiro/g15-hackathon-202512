@@ -3,6 +3,9 @@ import numpy as np
 import time
 from scipy.signal import butter, lfilter
 
+from app.config.config import load_config
+from app.services.penalty_logic import should_penalize
+
 SAMPLE_RATE = 44100
 FRAME = 1024
 VOICE_BAND = (300, 3400)  # 人間の声帯域
@@ -23,6 +26,8 @@ def bandpass_filter(data, lowcut, highcut, fs, order=5):
 
 def main():
     print("🎤 声帯域フィルタ版 監視システム起動中...")
+
+    config = load_config()
 
     stream = sd.InputStream(
         channels=1,
@@ -55,6 +60,14 @@ def main():
             print("... 無音（声なし） ...            ", end="\r")
 
         time.sleep(0.05)
+
+        if config.get("listener_only", False):
+            continue
+
+        decision = should_penalize(volume, silence_time, talking_time)
+
+        if decision:
+            print(f"\n⚠ ペナルティ発動: {decision}")
 
 try:
     main()
