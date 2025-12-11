@@ -1,4 +1,4 @@
-from utils.config import load_config
+from app.config.config import load_config
 
 def should_penalize(volume, silence_time, speak_time):
     config = load_config()
