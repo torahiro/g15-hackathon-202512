@@ -13,7 +13,7 @@ from scipy.signal import butter, lfilter
 matplotlib.rcParams['font.family'] = 'AppleGothic'
 matplotlib.rcParams['axes.unicode_minus'] = False
 
-#  設定（秒）
+# 設定（秒）
 TIME_WARNING = 60       # 優先1: 警告
 TIME_SHAME = 180        # 恥ずかしい音
 TIME_SPECTATOR = 190    # 観戦モード
