@@ -9,33 +9,32 @@ import matplotlib.pyplot as plt
 import matplotlib
 from scipy.signal import butter, lfilter
 
-# 日本語フォントを設定（環境に合わせて適宜変更してください）
-# Mac: AppleGothic, Windows: MS Gothic or Meiryo など
+# 日本語フォントを設定
 matplotlib.rcParams['font.family'] = 'AppleGothic'
 matplotlib.rcParams['axes.unicode_minus'] = False
 
-# ===== 設定（秒） =====
+#  設定（秒）
 TIME_WARNING = 60       # 優先1: 警告
 TIME_SHAME = 180        # 恥ずかしい音
 TIME_SPECTATOR = 190    # 観戦モード
 TIME_TALK_LIMIT = 30    # 優先2: 喋りすぎペナルティ
 
-# ===== 音声認識設定 =====
+# 音声認識設定
 SAMPLE_RATE = 44100
 CHECK_INTERVAL = 0.1
 DEFAULT_THRESHOLD = 0.05
 VOICE_BAND = (300, 3400) # 人間の声の周波数帯域
 
-# ===== 音声ファイル =====
-SOUND_WARNING = "alarm.wav"
-SOUND_SHAME = "shame.wav"
-SOUND_SPECTATOR = "spectator.wav"
-SOUND_TALK_TOO_MUCH = "shame.wav" # ペナルティ音
-SOUND_APOLOGY = "apology.wav"
+# 音声ファイル 
+SOUND_WARNING = "assets/alarm.wav"
+SOUND_SHAME = "assets/shame.wav"
+SOUND_SPECTATOR = "assets/spectator.wav"
+SOUND_TALK_TOO_MUCH = "assets/shame.wav" # ペナルティ音
+SOUND_APOLOGY = "assets/apology.wav"
 
 STATE_FILE = "state.json"
 
-# ===== フィルタ関数 (observer.pyより移植) =====
+#フィルタ関数 (observer.pyより移植) 
 def butter_bandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -47,7 +46,7 @@ def bandpass_filter(data, lowcut, highcut, fs, order=5):
     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
     return lfilter(b, a, data)
 
-# ===== state load/save =====
+#state load/save
 def read_state():
     try:
         if os.path.exists(STATE_FILE):
@@ -79,7 +78,7 @@ def write_state(updates: dict):
     except:
         pass
 
-# ===== TalkTimer =====
+# TalkTimer
 class TalkTimer:
     def __init__(self, penalty_limit=30, silence_tolerance=2.0):
         self.speech_start_time = None
@@ -107,7 +106,7 @@ class TalkTimer:
 
         return 0.0
 
-# ===== AudioMonitor =====
+#  AudioMonitor 
 class AudioMonitor(threading.Thread):
     def __init__(self, sample_rate=44100, interval=0.1, default_threshold=DEFAULT_THRESHOLD):
         super().__init__(daemon=True)
@@ -204,7 +203,7 @@ class AudioMonitor(threading.Thread):
         self.running = False
 
 
-# ===== Streamlit UI =====
+# Streamlit UI 
 st.set_page_config(page_title="会話監視ボット（完全版）", layout="centered")
 
 if "warning_played" not in st.session_state:
@@ -232,7 +231,7 @@ total_silence_time = state.get("total_silence_time", 0.0)
 
 elapsed_silence = time.time() - last_voice_time
 
-# ===== Sidebar =====
+# Sidebar 
 st.sidebar.header("⚙️ 設定")
 
 # 再スタートボタン
@@ -279,7 +278,7 @@ new_th = st.sidebar.slider("マイク感度", 0.01, 1.0, threshold, 0.01)
 if new_th != threshold:
     write_state({"threshold": new_th})
 
-# ===== Main UI =====
+# Main UI 
 st.title("シャベロー君（完全版）🗣️🤖")
 
 # spectator mode
@@ -307,7 +306,7 @@ else:
     # ボリュームメーター
     st.progress(min(current_vol / 0.5, 1.0))
 
-    # --- 判定ロジック ---
+    #  判定ロジック
     
     # 優先2: 30秒以上喋り続けたらペナルティ
     if talk_duration > TIME_TALK_LIMIT:
@@ -349,7 +348,7 @@ else:
         if talk_duration < 1:
             st.session_state.talk_limit_played = False
 
-    # ===== 円グラフ（累積：会話時間 vs 無音時間） =====
+    # 円グラフ（累積：会話時間 vs 無音時間） 
     st.subheader("📊 会話割合（累積）")
     st.write("🟥=話した時間")
     st.write("🟦=無音時間")
@@ -374,4 +373,3 @@ else:
 
     time.sleep(1)
     st.rerun()
-
