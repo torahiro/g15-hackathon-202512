@@ -105,17 +105,17 @@ def audio_loop(auto_mute, priority_mode, status_box, stop_event):
 # Streamlit UI
 # =====================
 st.set_page_config(page_title="Zoom Auto Mute Tool")
-st.title("🎙 Zoom Auto Mute Tool")
+st.title("🎙 Zoom Auto Mute Tools")
 
-st.subheader("Zoom 操作")
-if st.button("🚀 Zoom を起動"):
+st.subheader("Zoomの立ち上げ")
+if st.button("Zoom を起動"):
     launch_zoom()
     st.success("Zoomを起動しました")
 
 st.divider()
 
-auto_mute = st.checkbox("Auto Mute（話していない時は自動ミュート）", value=True)
-priority_mode = st.checkbox("Priority Mode（相手が話したら強制ミュート）")
+auto_mute = st.checkbox("自動ミュート機能（話していない時は自動ミュート）", value=True)
+priority_mode = st.checkbox("声被り防止機能（相手が話したら強制ミュート）")
 
 status_box = st.empty()
 
